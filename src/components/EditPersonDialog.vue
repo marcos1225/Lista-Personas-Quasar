@@ -1,4 +1,3 @@
-<!-- components/EditPersonDialog.vue -->
 <template>
     <q-dialog v-model="dialogVisible" @hide="handleDialogClose">
       <q-card class="w-[400px]">
@@ -15,7 +14,7 @@
         </q-card-section>
   
         <q-card-actions align="right">
-          <q-btn flat label="Cancelar" @click="dialogVisible = false" /> <!-- Cerrar el diálogo manualmente -->
+          <q-btn flat label="Cancelar" @click="dialogVisible = false" /> 
           <q-btn flat label="Guardar" color="primary" @click="savePerson" />
         </q-card-actions>
       </q-card>
@@ -32,10 +31,10 @@
       personData: Object,
       isEditing: Boolean
     },
-    emits: ['update:visible', 'saved', 'error'],  // Añadimos el evento 'error' para emitir el mensaje de error al componente padre
+    emits: ['update:visible', 'saved', 'error'], 
     setup (props, { emit }) {
       const dialogVisible = ref(props.visible)
-      const person = ref({ ...props.personData }) // Copia la persona actual
+      const person = ref({ ...props.personData }) 
   
       // Guarda la persona (nueva o editada)
       const savePerson = async () => {
@@ -45,29 +44,29 @@
           } else {
             await personService.addPerson(person.value)
           }
-          emit('saved')  // Emitir evento para indicar que se guardó correctamente
-          handleDialogClose()  // Cerrar el diálogo tras guardar
+          emit('saved') 
+          handleDialogClose()  
         } catch (error) {
           if (error.response && error.response.status === 400) {
-            emit('error', error.response.data || 'Error al guardar la persona.')  // Emitimos el error al componente padre
+            emit('error', error.response.data || 'Error al guardar la persona.')  
           } else {
-            emit('error', 'Error inesperado al guardar la persona.')  // Emitimos un error genérico si no es 400
+            emit('error', 'Error inesperado al guardar la persona.') 
           }
         }
       }
   
-      // Actualiza la visibilidad del diálogo cuando cambie la prop `visible`
+      // Actualiza la visibilidad del diálogo cuando cambia la prop `visible`
       watch(() => props.visible, newVal => {
         dialogVisible.value = newVal
         if (newVal) {
-          person.value = { ...props.personData }  // Actualiza los datos cuando se abre el diálogo
+          person.value = { ...props.personData }  // Actualiza los datos de la persona cuando se abre el diálogo
         }
       })
   
-      // Maneja el cierre del diálogo y emite el evento de cierre
+      // Maneja el cierre del diálogo 
       const handleDialogClose = () => {
         dialogVisible.value = false
-        emit('update:visible', false)  // Emitimos para que el componente padre cierre el diálogo
+        emit('update:visible', false)  
       }
   
       return {

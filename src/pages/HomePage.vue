@@ -1,6 +1,5 @@
 <template>
-  <q-page>
-    <article class="w-full flex flex-col items-center justify-center mt-4 p-4 md:p-8 md:w-[600px] mx-auto bg-[] shadow-xl rounded-lg">
+  <q-page class="w-full flex flex-col items-center justify-center mt-4 p-4 md:p-8 md:w-[600px] mx-auto bg-[] shadow-xl rounded-lg">
       <h1 class="text-3xl font-bold text-gray-700 mb-2">¡Bienvenido!</h1>
 
       <p class="w-full p-4 text-wrap text-base  md:text-[1rem] text-gray-600 mb-4">
@@ -18,6 +17,5 @@
           ¡Gestiona toda tu base de datos de forma eficiente y sin complicaciones!
         </p>
       </div>
-    </article>
   </q-page>
 </template>

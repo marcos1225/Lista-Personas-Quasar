@@ -1,4 +1,3 @@
-// services/personService.js
 import axios from 'axios'
 
 const API_URL = 'https://localhost:7281/api/RepositorioPersona/'
@@ -18,5 +17,8 @@ export const personService = {
   
   deletePerson(cedula) {
     return axios.delete(`${API_URL}EliminePersona?cedula=${cedula}`)
+  },
+  viewPerson(cedula) {
+    return axios.get(`${API_URL}ObtengaPersonaPorCedula?id=${cedula}`)
   }
 }

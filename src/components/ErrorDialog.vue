@@ -1,6 +1,5 @@
-<!-- components/ErrorDialog.vue -->
 <template>
-  <q-dialog :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)">
+  <q-dialog v-model="dialogVisible">
     <q-card>
       <q-card-section>
         <div class="text-h6">Error ❌</div>
@@ -17,13 +16,25 @@
 <script>
 export default {
   props: {
-    modelValue: Boolean,  // Controla si el diálogo está abierto o cerrado
-    message: String  // El mensaje de error a mostrar
+    modelValue: Boolean, 
+    message: String 
   },
-  emits: ['update:modelValue'],  // Emitimos el evento para actualizar modelValue
+  emits: ['update:modelValue'], 
+  computed: {
+    // Propiedad calculada para manejar el enlace bidireccional (v-model)
+    dialogVisible: {
+      get() {
+        return this.modelValue;
+      },
+      set(value) {
+        this.$emit('update:modelValue', value);  // Emite automáticamente el valor actualizado
+      }
+    }
+  },
   methods: {
+    // Método para cerrar el diálogo
     closeDialog() {
-      this.$emit('update:modelValue', false)  // Cerramos el diálogo
+      this.dialogVisible = false;  // Cierra el diálogo actualizando la propiedad computada
     }
   }
 }

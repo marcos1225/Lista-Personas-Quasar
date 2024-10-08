@@ -1,3 +1,69 @@
+<template>
+  <div class="q-pa-md">
+    <q-table
+      :rows="rows"
+      :columns="columns"
+      row-key="cedula"
+    >
+      <template v-slot:top>
+        <div class="q-pa-md">
+          <div class="text-2xl font-semibold">Lista De Personas</div>
+          <q-btn class="q-mt-md text-xs" color="primary" label="Agregar" icon="add" @click="openAddDialog" />
+        </div>
+      </template>
+
+      <template v-slot:header-cell="props">
+        <q-th align="center">
+          <div class="text-lg">{{ props.col.label }}</div>
+        </q-th>
+      </template>
+
+      <template v-slot:body-cell="props">
+        <q-td :props="props">
+          <div class="text-[1rem] text-center">
+            {{ typeof props.col.field === 'function' ? props.col.field(props.row) : props.row[props.col.field] }}
+          </div>
+        </q-td>
+      </template>
+
+      <template v-slot:body-cell-actions="props">
+        <q-td align="center">
+          <q-btn class="q-mr-sm bg-gray-600 text-white text-xs" label="Ver" icon="visibility" @click="viewRow(props.row)" />
+          <q-btn class="q-mr-sm text-xs" color="primary" label="Editar" icon="edit" @click="editRow(props.row)" />
+          <q-btn class="text-xs" color="negative" label="Eliminar" icon="delete" @click="confirmDelete(props.row)" />
+        </q-td>
+      </template>
+    </q-table>
+
+    <ViewPersonDialog 
+      :visible="viewDialog" 
+      :personData="currentRow"
+      @update:visible="viewDialog = $event" 
+    />
+
+    <EditPersonDialog 
+      :visible="editDialog" 
+      :personData="currentRow" 
+      :isEditing="isEditing"
+      @update:visible="editDialog = $event"  
+      @saved="fetchPersons"  
+      @error="showErrorDialog"  
+    />
+
+    <DeletePersonDialog 
+      :visible="deleteDialog" 
+      :personData="deleteRowData" 
+      @update:visible="deleteDialog = $event"
+      @deleted="fetchPersons"  
+    />
+    <ErrorDialog
+      :model-value="errorDialogVisible"
+      :message="errorMessage"
+      @update:model-value="errorDialogVisible = $event"
+    />
+  </div>
+</template>
+
 
 <script>
 import { ref, onMounted } from 'vue'
@@ -24,12 +90,12 @@ export default {
       { name: 'telefono', label: 'Teléfono', align: 'center', field: 'telefono' },
       { name: 'actions', label: 'Acciones', align: 'center' }
     ]
-    const editDialog = ref(false)
-    const viewDialog = ref(false)
-    const deleteDialog = ref(false)
-    const currentRow = ref({})
-    const deleteRowData = ref({})
-    const isEditing = ref(false)
+    const editDialog = ref(false) //Estado para abrir/cerrar el dialogo de editar
+    const viewDialog = ref(false)  //Estado para poder abrir/cerrar el dialogo de ver
+    const deleteDialog = ref(false)  //Estado para poder abrir/cerrar el dialogo de eliminar
+    const currentRow = ref({})  //Estado para poder guardar la informacion de la fila seleccionada
+    const deleteRowData = ref({}) //Estado para poder guardar la informacion de la fila seleccionada a eliminar
+    const isEditing = ref(false)  //Estado para saber si el dialogo es de editar o agregar
     const errorDialogVisible = ref(false)  // Estado para controlar la visibilidad del diálogo de error
     const errorMessage = ref('')  // Estado para almacenar el mensaje de error
 
@@ -64,15 +130,6 @@ export default {
       deleteDialog.value = true
     }
 
-    const deleteRow = async () => {
-      try {
-        await personService.deletePerson(deleteRowData.value.cedula)
-        fetchPersons()
-        deleteDialog.value = false
-      } catch (error) {
-        console.error('Error al eliminar la persona:', error)
-      }
-    }
 
     const showErrorDialog = (message) => {
       errorMessage.value = message
@@ -97,7 +154,6 @@ export default {
       editRow,
       viewRow,
       confirmDelete,
-      deleteRow,
       errorDialogVisible,
       errorMessage,
       showErrorDialog
@@ -105,78 +161,3 @@ export default {
   }
 }
 </script>
-
-<template>
-  <div class="q-pa-md">
-    <q-table
-      :rows="rows"
-      :columns="columns"
-      row-key="cedula"
-    >
-      <!-- Slot para el título y el botón de agregar -->
-      <template v-slot:top>
-        <div class="q-pa-md">
-          <div class="text-2xl font-semibold">Lista De Personas</div>
-          <q-btn class="q-mt-md text-xs" color="primary" label="Agregar" icon="add" @click="openAddDialog" />
-        </div>
-      </template>
-
-      <!-- Personalizar el tamaño del label en el header de la columna -->
-      <template v-slot:header-cell="props">
-        <q-th align="center">
-          <div class="text-lg">{{ props.col.label }}</div>
-        </q-th>
-      </template>
-
-      <!-- Personalizar el tamaño del texto en la información de las filas -->
-      <template v-slot:body-cell="props">
-        <q-td :props="props">
-          <div class="text-[1rem] text-center">
-            {{ typeof props.col.field === 'function' ? props.col.field(props.row) : props.row[props.col.field] }}
-          </div>
-        </q-td>
-      </template>
-
-      <!-- Columnas de acciones (Ver, Editar, Eliminar) -->
-      <template v-slot:body-cell-actions="props">
-        <q-td align="center">
-          <q-btn class="q-mr-sm bg-gray-600 text-white text-xs" label="Ver" icon="visibility" @click="viewRow(props.row)" />
-          <q-btn class="q-mr-sm text-xs" color="primary" label="Editar" icon="edit" @click="editRow(props.row)" />
-          <q-btn class="text-xs" color="negative" label="Eliminar" icon="delete" @click="confirmDelete(props.row)" />
-        </q-td>
-      </template>
-    </q-table>
-
-    <!-- Diálogo de ver información -->
-    <ViewPersonDialog 
-      :visible="viewDialog" 
-      :personData="currentRow"
-      @update:visible="viewDialog = $event" 
-    />
-
-    <!-- Diálogo de agregar/editar -->
-    <EditPersonDialog 
-      :visible="editDialog" 
-      :personData="currentRow" 
-      :isEditing="isEditing"
-      @update:visible="editDialog = $event"  
-      @saved="fetchPersons"  
-      @error="showErrorDialog"  
-    />
-
-    <!-- Diálogo de confirmación para eliminar -->
-    <DeletePersonDialog 
-      :visible="deleteDialog" 
-      :personData="deleteRowData" 
-      @update:visible="deleteDialog = $event"
-      @confirmed="deleteRow"
-    />
-
-    <!-- Diálogo de error -->
-    <ErrorDialog
-      :model-value="errorDialogVisible"
-      :message="errorMessage"
-      @update:model-value="errorDialogVisible = $event"
-    />
-  </div>
-</template>
